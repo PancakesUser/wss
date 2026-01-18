@@ -1,14 +1,12 @@
 import "dotenv/config";
-import {client, type Client, type OAuthToken} from "@nekiro/kick-api";
-import { askForToken } from "./utils/askForToken.ts";
-import "./server.ts";
+import "./utils/server.ts";
+import { client, type OAuthToken } from "@nekiro/kick-api";
 
 if(!process.env.clientId || !process.env.clientSecret) {
-    throw new Error("Missing parameters on environment variables.");
+    throw new Error(`Missing environment variables!`);
 }
 
-
-const nekiroClient: Client = new client({
+const nekiroClient = new client({
     clientId: process.env.clientId as string,
     clientSecret: process.env.clientSecret as string,
     redirectUri: "http://localhost:3000/callback",
@@ -16,68 +14,72 @@ const nekiroClient: Client = new client({
 });
 const PKCEParams = nekiroClient.generatePKCEParams();
 
+// Bot Configuration.
+const channel = process.env.kick_channel as string;
+let isLive: boolean;
+let isSendingMessage: boolean = false;
+let cooldown: number = 59*1000;
 
-async function startBot(token?: OAuthToken): Promise<void> {
-    // If there' isn't a token set.
+var XPFarmed: number = 0;
+
+async function start(token?: OAuthToken): Promise<void> {
     if(!token) {
-        const oauthURL: string = nekiroClient.getAuthorizationUrl(PKCEParams, ["chat:write", "channel:read"]);
-        console.log(oauthURL);
+        const OAuthURL: string = nekiroClient.getAuthorizationUrl(PKCEParams, ["chat:write", "channel:read"]);
+        console.log(OAuthURL);
         return;
     }
 
-    let xpFarmed: number = 0;
-    let is_channel_live: boolean;
-    let farm: boolean;
-    let isSending: boolean = false;
-
     try{
-        const channel: any = await nekiroClient.channels.getChannel(process.env.kick_channel as string);
+        const channelInfo: any = await nekiroClient.channels.getChannel(channel);
 
-        // While channel isn't on live. Pause the farm.
-        is_channel_live = channel.stream.is_live;
+        if(!channelInfo) {
+            throw new Error(`Requested Channel hasn't been found!`);
+        }
 
         setInterval(() => {
-            // While stream is active. Farm Else Stop or wait.
-            farm = channel.stream.is_live;
-        }, 15 * 60 * 1000);
-
-
-        setInterval(async () => {
-            // Verify if script can farm. Else return
-            if(farm) {
-                try{                    
-                    if(isSending) return;
-                    isSending = true;
-                    await nekiroClient.chat.postMessage({
-                        broadcaster_user_id: channel.broadcaster_user_id as number,
-                        content: "[emote:37232:PeepoClap]",
-                        type: "user"
-                    })
-                    .then((message) => {
-                        if(message.is_sent) {
-                            console.log(`[${new  Date().toLocaleTimeString("es-ES")}] Message Succesfully Send +10 XP.`);
-                            xpFarmed += 10;
-                            console.log(`Total XP Farmed: [${xpFarmed}]`);
-                        }
-                    });
-                }catch(error: unknown) {
-                    console.error(`Something went wrong sending messages to ${process.env.kick_channel}: ${error}`);
-                }finally{
-                    isSending = false;
-                }
-            }else return;
+            isLive = channelInfo.stream.is_live;
+            if(isLive && !channelInfo.stream.is_live) {
+                console.log(`Stream has ended 🎦⏹️`);
+                console.log(`The stream has ended... You've farmed: ${XPFarmed}`);
+            }
+            console.log(`Streamer's Live 🎦: ${isLive}`);
         }, 59*1000);
 
+        setInterval(async () => {
+            if(!isLive) {
+                if(XPFarmed === 0) return console.log(`Streamer hasn't started streaming yet...`);
+            }
+
+            if(isSendingMessage) return;
+
+            try{
+                isSendingMessage = true;
+                await nekiroClient.chat.postMessage({
+                    broadcaster_user_id: channelInfo.broadcaster_user_id,
+                    content: "[emote:37232:PeepoClap]",
+                    type: "user"
+                });
+            }catch(error: unknown) {
+                console.error(`Something went wrong trying to send the message: `, error);
+            }finally{
+                isSendingMessage = false;
+                XPFarmed += 10;
+                console.log(`[${new Date().toLocaleTimeString("es-ES")}] Farm - 10 XP. | Current farmed: ${XPFarmed} XP`);
+            }
+        }, cooldown);
+
     }catch(error: unknown) {
-        console.error(`Something went wrong trying to start the AutoFarm Bot: `, error);
+        console.error(`Something went wrong starting the bot: `, error);
     }
 
 }
 
-startBot();
+
+start();
+
 
 export {
-    startBot,
     nekiroClient,
-    PKCEParams
+    PKCEParams,
+    start
 }
