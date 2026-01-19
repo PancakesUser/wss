@@ -1,7 +1,9 @@
 import "dotenv/config";
 import "./utils/server.js";
 import { client } from "@nekiro/kick-api";
-if (!process.env.clientId || !process.env.clientSecret) {
+import { fetchUserLVL } from "./utils/fetchUser.js";
+import { sendWebHookMSG } from "./utils/sendWebhookMSG.js";
+if (!process.env.clientId || !process.env.clientSecret || !process.env.kick_user || !process.env.kick_channel) {
     throw new Error(`Missing environment variables!`);
 }
 const nekiroClient = new client({
@@ -14,6 +16,8 @@ const PKCEParams = nekiroClient.generatePKCEParams();
 // Bot Configuration.
 const channel = process.env.kick_channel;
 let isLive;
+let hasReachedRequiredLVL = false;
+let isReachedMSGSent = false;
 let isSendingMessage = false;
 let cooldown = 59 * 1000;
 var XPFarmed = 0;
@@ -43,6 +47,27 @@ async function start(token) {
             }
             if (isSendingMessage)
                 return;
+            if (!hasReachedRequiredLVL) {
+                await fetchUserLVL()
+                    .then((results) => {
+                    if (results.status !== 200)
+                        console.log(`Couldn't fetch Kick-User data: `);
+                    results.data.map((e) => {
+                        if (e.level >= 42) {
+                            hasReachedRequiredLVL = true;
+                        }
+                        else {
+                            console.log(`Hasn't reached required lvl!`);
+                        }
+                    });
+                });
+            }
+            else {
+                if (!isReachedMSGSent) {
+                    sendWebHookMSG(`${process.env.kick_user} @everyone ! You've reached level 42 go claim!`);
+                    isReachedMSGSent = true;
+                }
+            }
             try {
                 isSendingMessage = true;
                 await nekiroClient.chat.postMessage({

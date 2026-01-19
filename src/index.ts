@@ -1,8 +1,11 @@
 import "dotenv/config";
 import "./utils/server.js";
 import { client, type OAuthToken } from "@nekiro/kick-api";
+import { fetchUserLVL } from "./utils/fetchUser.js";
+import type { BotrixUserType } from "./types/BTXUserT.js";
+import { sendWebHookMSG } from "./utils/sendWebhookMSG.js";
 
-if(!process.env.clientId || !process.env.clientSecret) {
+if(!process.env.clientId || !process.env.clientSecret || !process.env.kick_user || !process.env.kick_channel) {
     throw new Error(`Missing environment variables!`);
 }
 
@@ -17,9 +20,10 @@ const PKCEParams = nekiroClient.generatePKCEParams();
 // Bot Configuration.
 const channel = process.env.kick_channel as string;
 let isLive: boolean;
+let hasReachedRequiredLVL: boolean = false;
+let isReachedMSGSent: boolean = false;
 let isSendingMessage: boolean = false;
 let cooldown: number = 59*1000;
-
 var XPFarmed: number = 0;
 
 async function start(token?: OAuthToken): Promise<void> {
@@ -49,8 +53,27 @@ async function start(token?: OAuthToken): Promise<void> {
             if(!isLive) {
                 if(XPFarmed === 0) return console.log(`Streamer hasn't started streaming yet...`);
             }
-
             if(isSendingMessage) return;
+
+
+            if(!hasReachedRequiredLVL) {
+                await fetchUserLVL()
+                .then((results) => {
+                    if(results.status !== 200) console.log(`Couldn't fetch Kick-User data: `);
+                    results.data.map((e: BotrixUserType) => {
+                        if(e.level >= 42) {
+                            hasReachedRequiredLVL = true;
+                        }else{
+                            console.log(`Hasn't reached required lvl!`);
+                        }
+                    });
+                });
+            }else{
+                if(!isReachedMSGSent) {
+                    sendWebHookMSG(`${process.env.kick_user} @everyone ! You've reached level 42 go claim!`);
+                    isReachedMSGSent = true;
+                }
+            }
 
             try{
                 isSendingMessage = true;
