@@ -4,6 +4,7 @@ import { client, type OAuthToken } from "@nekiro/kick-api";
 import { fetchUserLVL } from "./utils/fetchUser.js";
 import type { BotrixUserType } from "./types/BTXUserT.js";
 import { sendWebHookMSG } from "./utils/sendWebhookMSG.js";
+import { isAxiosError } from "axios";
 
 if(!process.env.clientId || !process.env.clientSecret || !process.env.kick_user || !process.env.kick_channel) {
     throw new Error(`Missing environment variables!`);
@@ -53,17 +54,34 @@ async function start(token?: OAuthToken): Promise<void> {
 
 
             if(!hasReachedRequiredLVL) {
-                await fetchUserLVL()
-                .then((results) => {
-                    if(results.status !== 200) console.log(`Couldn't fetch Kick-User data: `);
-                    results.data.map((e: BotrixUserType) => {
-                        if(e.level >= 42) {
-                            hasReachedRequiredLVL = true;
-                        }else{
-                            console.log(`Hasn't reached required lvl!`);
+                setTimeout(async () => {
+                    await fetchUserLVL()
+                    .then((results) => {
+                        if(results.status !== 200) console.log(`Couldn't fetch Kick-User data: `);
+                        results.data.map((e: BotrixUserType) => {
+                            if(e.level >= 42) {
+                                hasReachedRequiredLVL = true;
+                            }else{
+                                console.log(`Hasn't reached required lvl!`);
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        if(isAxiosError(error)) {
+                            switch (error.code) {
+                                case "ENOTFOUND":
+                                    console.log(`DNS Couldn't solve botrix.live`);
+                                    break;
+                                case "ECONNABORTED":
+                                    console.log("[NET] Connection has been aborted");
+                                    break;
+                                default:
+                                    console.log("AXIOS ERROR", error);
+                                    break;
+                            }
                         }
                     });
-                });
+                }, 5*60*1000);
             }else{
                 if(!isReachedMSGSent) {
                     sendWebHookMSG(`${process.env.kick_user} @everyone ! You've reached level 42 go claim!`);
