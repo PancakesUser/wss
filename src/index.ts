@@ -42,10 +42,6 @@ async function start(token?: OAuthToken): Promise<void> {
 
         setInterval(() => {
             isLive = channelInfo.stream.is_live;
-            if(isLive && !channelInfo.stream.is_live) {
-                console.log(`Stream has ended 🎦⏹️`);
-                console.log(`The stream has ended... You've farmed: ${XPFarmed}`);
-            }
             console.log(`Streamer's Live 🎦: ${isLive}`);
         }, 59*1000);
 
