@@ -1,10 +1,11 @@
 import "dotenv/config";
-import "./utils/server.js";
-import { client, type OAuthToken } from "@nekiro/kick-api";
-import { fetchUserLVL } from "./utils/fetchUser.js";
-import type { BotrixUserType } from "./types/BTXUserT.js";
-import { sendWebHookMSG } from "./utils/sendWebhookMSG.js";
+import "./Utils/server.js";
+import { client, type Channel, type OAuthToken } from "@nekiro/kick-api";
+import { fetchUserLVL } from "./Utils/fetchUser.js";
+import type { BotrixUserType } from "./Types/BTXUserT.js";
+import { sendWebHookMSG } from "./Utils/sendWebhookMSG.js";
 import { isAxiosError } from "axios";
+import type { IChannel } from "./Types/ChannelT.js";
 
 if(!process.env.clientId || !process.env.clientSecret || !process.env.kick_user || !process.env.kick_channel) {
     throw new Error(`Missing environment variables!`);
@@ -34,16 +35,19 @@ async function start(token?: OAuthToken): Promise<void> {
         return;
     }
 
-    try{
-        const channelInfo: any = await nekiroClient.channels.getChannel(channel);
+    const channelInfo: IChannel = await nekiroClient.channels.getChannel(process.env.kick_channel as string);
 
-        if(!channelInfo) {
-            throw new Error(`Requested Channel hasn't been found!`);
-        }
-
-        setInterval(() => {
-            isLive = channelInfo.stream.is_live;
-            console.log(`Streamer's Live 🎦: ${isLive}`);
+    try{ 
+        setInterval(async () => {
+            try{
+                const updateChannelInfo: any = await nekiroClient.channels.getChannel(channel);
+                if(!updateChannelInfo) {
+                    throw new Error(`Requested Channel hasn't been found!`);
+                }
+                isLive = updateChannelInfo.stream.is_live;
+            }catch(error: unknown) {
+                console.error(`[Something went wrong trying to fetch channel LIVE status]`, error);
+            }
         }, 59*1000);
 
         setInterval(async () => {
@@ -92,7 +96,7 @@ async function start(token?: OAuthToken): Promise<void> {
             try{
                 isSendingMessage = true;
                 await nekiroClient.chat.postMessage({
-                    broadcaster_user_id: channelInfo.broadcaster_user_id,
+                    broadcaster_user_id: channelInfo.broadcaster_user_id as number,
                     content: "[emote:37232:PeepoClap]",
                     type: "user"
                 });

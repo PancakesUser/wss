@@ -1,8 +1,9 @@
 import "dotenv/config";
-import "./utils/server.js";
+import "./Utils/server.js";
 import { client } from "@nekiro/kick-api";
-import { fetchUserLVL } from "./utils/fetchUser.js";
-import { sendWebHookMSG } from "./utils/sendWebhookMSG.js";
+import { fetchUserLVL } from "./Utils/fetchUser.js";
+import { sendWebHookMSG } from "./Utils/sendWebhookMSG.js";
+import { isAxiosError } from "axios";
 if (!process.env.clientId || !process.env.clientSecret || !process.env.kick_user || !process.env.kick_channel) {
     throw new Error(`Missing environment variables!`);
 }
@@ -27,18 +28,19 @@ async function start(token) {
         console.log(OAuthURL);
         return;
     }
+    const channelInfo = await nekiroClient.channels.getChannel(process.env.kick_channel);
     try {
-        const channelInfo = await nekiroClient.channels.getChannel(channel);
-        if (!channelInfo) {
-            throw new Error(`Requested Channel hasn't been found!`);
-        }
-        setInterval(() => {
-            isLive = channelInfo.stream.is_live;
-            if (isLive && !channelInfo.stream.is_live) {
-                console.log(`Stream has ended 🎦⏹️`);
-                console.log(`The stream has ended... You've farmed: ${XPFarmed}`);
+        setInterval(async () => {
+            try {
+                const updateChannelInfo = await nekiroClient.channels.getChannel(channel);
+                if (!updateChannelInfo) {
+                    throw new Error(`Requested Channel hasn't been found!`);
+                }
+                isLive = updateChannelInfo.stream.is_live;
             }
-            console.log(`Streamer's Live 🎦: ${isLive}`);
+            catch (error) {
+                console.error(`[Something went wrong trying to fetch channel LIVE status]`, error);
+            }
         }, 59 * 1000);
         setInterval(async () => {
             if (!isLive) {
@@ -48,19 +50,36 @@ async function start(token) {
             if (isSendingMessage)
                 return;
             if (!hasReachedRequiredLVL) {
-                await fetchUserLVL()
-                    .then((results) => {
-                    if (results.status !== 200)
-                        console.log(`Couldn't fetch Kick-User data: `);
-                    results.data.map((e) => {
-                        if (e.level >= 42) {
-                            hasReachedRequiredLVL = true;
-                        }
-                        else {
-                            console.log(`Hasn't reached required lvl!`);
+                setTimeout(async () => {
+                    await fetchUserLVL()
+                        .then((results) => {
+                        if (results.status !== 200)
+                            console.log(`Couldn't fetch Kick-User data: `);
+                        results.data.map((e) => {
+                            if (e.level >= 42) {
+                                hasReachedRequiredLVL = true;
+                            }
+                            else {
+                                console.log(`Hasn't reached required lvl!`);
+                            }
+                        });
+                    })
+                        .catch((error) => {
+                        if (isAxiosError(error)) {
+                            switch (error.code) {
+                                case "ENOTFOUND":
+                                    console.log(`DNS Couldn't solve botrix.live`);
+                                    break;
+                                case "ECONNABORTED":
+                                    console.log("[NET] Connection has been aborted");
+                                    break;
+                                default:
+                                    console.log("AXIOS ERROR", error);
+                                    break;
+                            }
                         }
                     });
-                });
+                }, 5 * 60 * 1000);
             }
             else {
                 if (!isReachedMSGSent) {
