@@ -57,49 +57,49 @@ async function start(token?: OAuthToken): Promise<void> {
             if(isSendingMessage) return;
 
 
-            if(!hasReachedRequiredLVL) {
-                setTimeout(async () => {
-                    await fetchUserLVL()
-                    .then((results) => {
-                        if(results.status !== 200) console.log(`Couldn't fetch Kick-User data: `);
-                        results.data.map((e: BotrixUserType) => {
-                            if(e.level >= 42) {
-                                hasReachedRequiredLVL = true;
-                            }else{
-                                console.log(`Hasn't reached required lvl!`);
-                            }
-                        });
-                    })
-                    .catch((error) => {
-                        if(isAxiosError(error)) {
-                            switch (error.code) {
-                                case "ENOTFOUND":
-                                    console.log(`DNS Couldn't solve botrix.live`);
-                                    break;
-                                case "ECONNABORTED":
-                                    console.log("[NET] Connection has been aborted");
-                                    break;
-                                default:
-                                    console.log("AXIOS ERROR", error);
-                                    break;
-                            }
-                        }
-                    });
-                }, 5*60*1000);
-            }else{
-                if(!isReachedMSGSent) {
-                    sendWebHookMSG(`${process.env.kick_user} @everyone ! You've reached level 42 go claim!`);
-                    isReachedMSGSent = true;
-                }
-            }
+            // if(!hasReachedRequiredLVL) {
+            //     setTimeout(async () => {
+            //         await fetchUserLVL()
+            //         .then((results) => {
+            //             if(results.status !== 200) console.log(`Couldn't fetch Kick-User data: `);
+            //             results.data.map((e: BotrixUserType) => {
+            //                 if(e.level >= 42) {
+            //                     hasReachedRequiredLVL = true;
+            //                 }else{
+            //                     console.log(`Hasn't reached required lvl!`);
+            //                 }
+            //             });
+            //         })
+            //         .catch((error) => {
+            //             if(isAxiosError(error)) {
+            //                 switch (error.code) {
+            //                     case "ENOTFOUND":
+            //                         console.log(`DNS Couldn't solve botrix.live`);
+            //                         break;
+            //                     case "ECONNABORTED":
+            //                         console.log("[NET] Connection has been aborted");
+            //                         break;
+            //                     default:
+            //                         console.log("AXIOS ERROR", error);
+            //                         break;
+            //                 }
+            //             }
+            //         });
+            //     }, 5*60*1000);
+            // }else{
+            //     if(!isReachedMSGSent) {
+            //         sendWebHookMSG(`${process.env.kick_user} @everyone ! You've reached level 42 go claim!`);
+            //         isReachedMSGSent = true;
+            //     }
+            // }
 
             try{
                 isSendingMessage = true;
-                await nekiroClient.chat.postMessage({
-                    broadcaster_user_id: channelInfo.broadcaster_user_id as number,
-                    content: "[emote:37232:PeepoClap]",
-                    type: "user"
-                });
+                // await nekiroClient.chat.postMessage({
+                //     broadcaster_user_id: channelInfo.broadcaster_user_id as number,
+                //     content: "[emote:37232:PeepoClap]",
+                //     type: "user"
+                // });
             }catch(error: unknown) {
                 console.error(`Something went wrong trying to send the message: `, error);
             }finally{
