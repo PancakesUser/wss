@@ -86,11 +86,11 @@ async function start(token) {
             // }
             try {
                 isSendingMessage = true;
-                // await nekiroClient.chat.postMessage({
-                //     broadcaster_user_id: channelInfo.broadcaster_user_id as number,
-                //     content: "[emote:37232:PeepoClap]",
-                //     type: "user"
-                // });
+                await nekiroClient.chat.postMessage({
+                    broadcaster_user_id: channelInfo.broadcaster_user_id,
+                    content: "[emote:37232:PeepoClap]",
+                    type: "user"
+                });
             }
             catch (error) {
                 console.error(`Something went wrong trying to send the message: `, error);
