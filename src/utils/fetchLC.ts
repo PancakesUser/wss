@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import type { ISenderUser } from "../Interfaces/ISenderUser.js";
+import type { ISenderUser } from "../interfaces/ISenderUser.js";
 import { kickBotWrote, updateKUWState, updateKBWState, kickUserWrote } from "./chatState.js";
 
 

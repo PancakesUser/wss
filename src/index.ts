@@ -1,9 +1,9 @@
 import "dotenv/config";
-import "./Utils/server.js";
-import "./Utils/fetchLC.js";
+import "./utils/server.js";
+import "./utils/fetchLC.js";
 import { client, type OAuthToken } from "@nekiro/kick-api";
-import type { IChannel } from "./Types/ChannelT.js";
-import { kickBotWrote, kickUserWrote, updateKBWState, updateKUWState } from "./Utils/chatState.js";
+import type { IChannel } from "./types/ChannelT.js";
+import { kickBotWrote, kickUserWrote, updateKBWState, updateKUWState } from "./utils/chatState.js";
 
 if(!process.env.clientId || !process.env.clientSecret || !process.env.kick_user || !process.env.kick_channel) {
     throw new Error(`Missing environment variables!`);
