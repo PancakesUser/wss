@@ -39,7 +39,7 @@ async function start(token) {
             catch (error) {
                 console.error(`[Something went wrong trying to fetch channel LIVE status]`, error);
             }
-        }, 15 * 1000);
+        }, 59 * 1000);
         setInterval(async () => {
             if (!isLive) {
                 if (XPFarmed === 0)
