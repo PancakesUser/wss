@@ -10,7 +10,7 @@
     "module": "node20",
     "target": "es2020",
     "types": ["node"],
-    "moduleResolution": "node16",
+    "moduleResolution": "nodenext",
     // For nodejs:
     "lib": ["esnext"],
     // and npm install -D @types/node

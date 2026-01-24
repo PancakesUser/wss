@@ -1,5 +1,5 @@
 import WebSocket from "ws";
-import { kickBotWrote, updateKUWState, updateKBWState, kickUserWrote } from "./chatState.js";
+import { updateKUWState, kickUserWrote } from "./chatState.js";
 const webSocket = new WebSocket("wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false");
 const chatroomId = 6255205;
 const channel = `chatrooms.${chatroomId}.v2`;

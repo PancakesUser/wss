@@ -2,7 +2,7 @@
   "name": "kick-websocket",
   "version": "1.0.0",
   "description": "AutoFarm-Kick Botrix points.",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
   "type": "module",
   "author": "hex",
   "license": "MIT",

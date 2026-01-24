@@ -1,6 +1,6 @@
 import "dotenv/config";
-import "./Utils/server.js";
-import "./Utils/fetchLC.js";
+import "./utils/server.js";
+import "./utils/fetchLC.js";
 import { type OAuthToken } from "@nekiro/kick-api";
 declare const nekiroClient: import("@nekiro/kick-api").Client;
 declare const PKCEParams: import("@nekiro/kick-api").OAuthAuthorizationParams;

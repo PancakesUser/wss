@@ -1,1 +1,1 @@
-{"version":3,"file":"fetchUser.d.ts","sourceRoot":"","sources":["../../src/Utils/fetchUser.ts"],"names":[],"mappings":"AAAA,OAAc,EAAE,KAAK,aAAa,EAAC,MAAM,OAAO,CAAC;AAEjD,wBAAsB,YAAY,IAAI,OAAO,CAAC,aAAa,CAAC,CAM3D"}
+{"version":3,"file":"fetchUser.d.ts","sourceRoot":"","sources":["../../src/utils/fetchUser.ts"],"names":[],"mappings":"AAAA,OAAc,EAAE,KAAK,aAAa,EAAC,MAAM,OAAO,CAAC;AAEjD,wBAAsB,YAAY,IAAI,OAAO,CAAC,aAAa,CAAC,CAM3D"}

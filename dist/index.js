@@ -1,8 +1,8 @@
 import "dotenv/config";
-import "./Utils/server.js";
-import "./Utils/fetchLC.js";
+import "./utils/server.js";
+import "./utils/fetchLC.js";
 import { client } from "@nekiro/kick-api";
-import { kickBotWrote, kickUserWrote, updateKBWState, updateKUWState } from "./Utils/chatState.js";
+import { kickBotWrote, kickUserWrote, updateKBWState, updateKUWState } from "./utils/chatState.js";
 if (!process.env.clientId || !process.env.clientSecret || !process.env.kick_user || !process.env.kick_channel) {
     throw new Error(`Missing environment variables!`);
 }
@@ -13,6 +13,7 @@ const nekiroClient = new client({
     debug: false
 });
 const PKCEParams = nekiroClient.generatePKCEParams();
+// 
 // Bot Configuration.
 const channel = process.env.kick_channel;
 let isLive;

@@ -1,4 +1,4 @@
-export interface ISenderUser {
+export type ISenderUser = {
     id: string,
     chatroom_id: number,
     content: string,

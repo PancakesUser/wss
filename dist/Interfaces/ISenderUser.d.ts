@@ -1,4 +1,4 @@
-export interface ISenderUser {
+export type ISenderUser = {
     id: string;
     chatroom_id: number;
     content: string;
@@ -16,5 +16,5 @@ export interface ISenderUser {
     metadata: {
         message_ref: string;
     };
-}
+};
 //# sourceMappingURL=ISenderUser.d.ts.map
