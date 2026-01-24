@@ -17,6 +17,7 @@ const nekiroClient = new client({
 });
 const PKCEParams = nekiroClient.generatePKCEParams();
 
+// 
 // Bot Configuration.
 const channel = process.env.kick_channel as string;
 let isLive: boolean;
