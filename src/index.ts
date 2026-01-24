@@ -45,7 +45,7 @@ async function start(token?: OAuthToken): Promise<void> {
             }catch(error: unknown) {
                 console.error(`[Something went wrong trying to fetch channel LIVE status]`, error);
             }
-        }, 15*1000);
+        }, 59*1000);
 
         setInterval(async () => {
             if(!isLive) {
