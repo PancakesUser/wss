@@ -1,0 +1,19 @@
+export interface ISenderUser {
+    id: string,
+    chatroom_id: number,
+    content: string,
+    type: string,
+    created_at: string,
+    sender: {
+        id: number,
+        username: string,
+        slug: string,
+        identity: {
+            color: string,
+            badges: Array<any>
+        }
+    },
+    metadata: {
+        message_ref: string
+    }
+}

@@ -1,9 +1,8 @@
 import "dotenv/config";
 import "./Utils/server.js";
+import "./Utils/fetchLC.js";
 import { client } from "@nekiro/kick-api";
-import { fetchUserLVL } from "./Utils/fetchUser.js";
-import { sendWebHookMSG } from "./Utils/sendWebhookMSG.js";
-import { isAxiosError } from "axios";
+import { kickBotWrote, kickUserWrote, updateKBWState, updateKUWState } from "./Utils/chatState.js";
 if (!process.env.clientId || !process.env.clientSecret || !process.env.kick_user || !process.env.kick_channel) {
     throw new Error(`Missing environment variables!`);
 }
@@ -17,8 +16,6 @@ const PKCEParams = nekiroClient.generatePKCEParams();
 // Bot Configuration.
 const channel = process.env.kick_channel;
 let isLive;
-let hasReachedRequiredLVL = false;
-let isReachedMSGSent = false;
 let isSendingMessage = false;
 let cooldown = 59 * 1000;
 var XPFarmed = 0;
@@ -41,49 +38,20 @@ async function start(token) {
             catch (error) {
                 console.error(`[Something went wrong trying to fetch channel LIVE status]`, error);
             }
-        }, 59 * 1000);
+        }, 15 * 1000);
         setInterval(async () => {
             if (!isLive) {
                 if (XPFarmed === 0)
                     return console.log(`Streamer hasn't started streaming yet...`);
             }
+            console.log(`Kick User Wrote: ${kickUserWrote} | Kick Bot Wrote: ${kickBotWrote}`);
             if (isSendingMessage)
                 return;
-            // if(!hasReachedRequiredLVL) {
-            //     setTimeout(async () => {
-            //         await fetchUserLVL()
-            //         .then((results) => {
-            //             if(results.status !== 200) console.log(`Couldn't fetch Kick-User data: `);
-            //             results.data.map((e: BotrixUserType) => {
-            //                 if(e.level >= 42) {
-            //                     hasReachedRequiredLVL = true;
-            //                 }else{
-            //                     console.log(`Hasn't reached required lvl!`);
-            //                 }
-            //             });
-            //         })
-            //         .catch((error) => {
-            //             if(isAxiosError(error)) {
-            //                 switch (error.code) {
-            //                     case "ENOTFOUND":
-            //                         console.log(`DNS Couldn't solve botrix.live`);
-            //                         break;
-            //                     case "ECONNABORTED":
-            //                         console.log("[NET] Connection has been aborted");
-            //                         break;
-            //                     default:
-            //                         console.log("AXIOS ERROR", error);
-            //                         break;
-            //                 }
-            //             }
-            //         });
-            //     }, 5*60*1000);
-            // }else{
-            //     if(!isReachedMSGSent) {
-            //         sendWebHookMSG(`${process.env.kick_user} @everyone ! You've reached level 42 go claim!`);
-            //         isReachedMSGSent = true;
-            //     }
-            // }
+            if (kickUserWrote) {
+                console.log(`The owner wrote before the script.. waiting 1 minute..`);
+                updateKUWState(false);
+                return;
+            }
             try {
                 isSendingMessage = true;
                 await nekiroClient.chat.postMessage({
