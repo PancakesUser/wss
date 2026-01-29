@@ -22,7 +22,7 @@ const PKCEParams = nekiroClient.generatePKCEParams();
 const channel = process.env.kick_channel as string;
 let isLive: boolean;
 let isSendingMessage: boolean = false;
-let cooldown: number = 59*1000;
+let cooldown: number = 60*1000;
 var XPFarmed: number = 0;
 
 async function start(token?: OAuthToken): Promise<void> {
@@ -45,7 +45,7 @@ async function start(token?: OAuthToken): Promise<void> {
             }catch(error: unknown) {
                 console.error(`[Something went wrong trying to fetch channel LIVE status]`, error);
             }
-        }, 59*1000);
+        }, 60*1000);
 
         setInterval(async () => {
             if(!isLive) {
