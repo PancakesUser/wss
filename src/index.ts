@@ -22,7 +22,7 @@ const PKCEParams = nekiroClient.generatePKCEParams();
 const channel = process.env.kick_channel as string;
 let isLive: boolean;
 let isSendingMessage: boolean = false;
-let cooldown: number = 60*1000;
+let cooldown: number = 30*60*1000;
 var XPFarmed: number = 0;
 
 async function start(token?: OAuthToken): Promise<void> {
