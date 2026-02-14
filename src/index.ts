@@ -5,91 +5,126 @@ import { client, type OAuthToken } from "@nekiro/kick-api";
 import type { IChannel } from "./types/ChannelT.js";
 import { kickBotWrote, kickUserWrote, updateKBWState, updateKUWState } from "./utils/chatState.js";
 
-if(!process.env.clientId || !process.env.clientSecret || !process.env.kick_user || !process.env.kick_channel) {
-    throw new Error(`Missing environment variables!`);
+if (
+  !process.env.clientId ||
+  !process.env.clientSecret ||
+  !process.env.kick_user ||
+  !process.env.kick_channel
+) {
+  throw new Error(`Missing environment variables!`);
 }
 
 const nekiroClient = new client({
-    clientId: process.env.clientId as string,
-    clientSecret: process.env.clientSecret as string,
-    redirectUri: "http://localhost:3000/callback",
-    debug: false
+  clientId: process.env.clientId as string,
+  clientSecret: process.env.clientSecret as string,
+  redirectUri: "http://localhost:3000/callback",
+  debug: false
 });
+
 const PKCEParams = nekiroClient.generatePKCEParams();
 
-// 
-// Bot Configuration.
+// ============================
+// Bot Configuration
+// ============================
+
 const channel = process.env.kick_channel as string;
-let isLive: boolean;
+
+let isLive: boolean = false;
 let isSendingMessage: boolean = false;
-let cooldown: number = 30*60*1000;
-var XPFarmed: number = 0;
+let cooldown: number = 30 * 60 * 1000; // 30 minutos
+let XPFarmed: number = 0;
+
+// 🔒 Guardar referencias de intervalos
+let liveInterval: NodeJS.Timeout | null = null;
+let messageInterval: NodeJS.Timeout | null = null;
 
 async function start(token?: OAuthToken): Promise<void> {
-    if(!token) {
-        const OAuthURL: string = nekiroClient.getAuthorizationUrl(PKCEParams, ["chat:write", "channel:read"]);
-        console.log(OAuthURL);
-        return;
+  if (!token) {
+    const OAuthURL: string = nekiroClient.getAuthorizationUrl(
+      PKCEParams,
+      ["chat:write", "channel:read"]
+    );
+    console.log(OAuthURL);
+    return;
+  }
+
+  // 🚫 Evita múltiples starts
+  if (liveInterval || messageInterval) {
+    console.log("Bot already started. Skipping...");
+    return;
+  }
+
+  const channelInfo: IChannel = await nekiroClient.channels.getChannel(channel);
+
+  console.log("Bot started successfully.");
+
+  // ============================
+  // Intervalo para verificar LIVE
+  // ============================
+
+  liveInterval = setInterval(async () => {
+    try {
+      const updateChannelInfo: any = await nekiroClient.channels.getChannel(channel);
+
+      if (!updateChannelInfo) {
+        throw new Error(`Requested Channel hasn't been found!`);
+      }
+
+      isLive = updateChannelInfo.stream?.is_live ?? false;
+    } catch (error: unknown) {
+      console.error(`[Error fetching LIVE status]`, error);
+    }
+  }, 60 * 1000);
+
+  // ============================
+  // Intervalo para enviar mensaje
+  // ============================
+
+  messageInterval = setInterval(async () => {
+    if (!isLive) {
+      if (XPFarmed === 0) {
+        console.log(`Streamer hasn't started streaming yet...`);
+      }
+      return;
     }
 
-    const channelInfo: IChannel = await nekiroClient.channels.getChannel(process.env.kick_channel as string);
+    if (isSendingMessage) return;
 
-    try{ 
-        setInterval(async () => {
-            try{
-                const updateChannelInfo: any = await nekiroClient.channels.getChannel(channel);
-                if(!updateChannelInfo) {
-                    throw new Error(`Requested Channel hasn't been found!`);
-                }
-                isLive = updateChannelInfo.stream.is_live;
-            }catch(error: unknown) {
-                console.error(`[Something went wrong trying to fetch channel LIVE status]`, error);
-            }
-        }, 60*1000);
+    console.log(`Kick User Wrote: ${kickUserWrote} | Kick Bot Wrote: ${kickBotWrote}`);
 
-        setInterval(async () => {
-            if(!isLive) {
-                if(XPFarmed === 0) return console.log(`Streamer hasn't started streaming yet...`);
-            }
-
-            console.log(`Kick User Wrote: ${kickUserWrote} | Kick Bot Wrote: ${kickBotWrote}`);
-
-            if(isSendingMessage) return;
-
-            if(kickUserWrote) {
-                console.log(`The owner wrote before the script.. waiting 1 minute..`);
-                updateKUWState(false);
-                return;
-            }
-
-            try{
-                isSendingMessage = true;
-                await nekiroClient.chat.postMessage({
-                    broadcaster_user_id: channelInfo.broadcaster_user_id as number,
-                    content: "[emote:37232:PeepoClap]",
-                    type: "user"
-                });
-            }catch(error: unknown) {
-                console.error(`Something went wrong trying to send the message: `, error);
-            }finally{
-                isSendingMessage = false;
-                XPFarmed += 10;
-                console.log(`[${new Date().toLocaleTimeString("es-ES")}] Farm - 10 XP. | Current farmed: ${XPFarmed} XP`);
-            }
-        }, cooldown);
-
-    }catch(error: unknown) {
-        console.error(`Something went wrong starting the bot: `, error);
+    if (kickUserWrote) {
+      console.log(`Owner wrote before script. Waiting next cycle...`);
+      updateKUWState(false);
+      return;
     }
 
+    try {
+      isSendingMessage = true;
+
+      await nekiroClient.chat.postMessage({
+        broadcaster_user_id: channelInfo.broadcaster_user_id as number,
+        content: "[emote:37232:PeepoClap]",
+        type: "user"
+      });
+
+      XPFarmed += 10;
+
+      console.log(
+        `[${new Date().toLocaleTimeString("es-ES")}] Farm - 10 XP | Total: ${XPFarmed} XP`
+      );
+    } catch (error: unknown) {
+      console.error(`Error sending message:`, error);
+    } finally {
+      isSendingMessage = false;
+    }
+
+  }, cooldown);
 }
-
 
 start();
 
-
 export {
-    nekiroClient,
-    PKCEParams,
-    start
-}
+  nekiroClient,
+  PKCEParams,
+  start
+};
