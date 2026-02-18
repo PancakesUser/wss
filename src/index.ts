@@ -3,7 +3,6 @@ import "./utils/server.js";
 import "./utils/fetchLC.js";
 import { client, type OAuthToken } from "@nekiro/kick-api";
 import type { IChannel } from "./types/ChannelT.js";
-import { kickBotWrote, kickUserWrote, updateKBWState, updateKUWState } from "./utils/chatState.js";
 
 if (
   !process.env.clientId ||
@@ -89,14 +88,6 @@ async function start(token?: OAuthToken): Promise<void> {
     }
 
     if (isSendingMessage) return;
-
-    console.log(`Kick User Wrote: ${kickUserWrote} | Kick Bot Wrote: ${kickBotWrote}`);
-
-    if (kickUserWrote) {
-      console.log(`Owner wrote before script. Waiting next cycle...`);
-      updateKUWState(false);
-      return;
-    }
 
     try {
       isSendingMessage = true;

@@ -25,7 +25,6 @@ webSocket.on("message", async (data: WebSocket.RawData, isBinary: boolean): Prom
             const parseMessage: ISenderUser = JSON.parse(message.data);
             if(parseMessage.sender.username.toLocaleLowerCase() === process.env.kick_user) {
                 if(parseMessage.content.trim().toLocaleLowerCase() !== "[emote:37232:PeepoClap]".toLocaleLowerCase().trim() && !kickUserWrote) {
-                    console.log(`[Script Owner Has Send a Message: Waiting 1 minute since now...]`);
                     updateKUWState(true);
                 }
             }

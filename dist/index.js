@@ -2,7 +2,6 @@ import "dotenv/config";
 import "./utils/server.js";
 import "./utils/fetchLC.js";
 import { client } from "@nekiro/kick-api";
-import { kickBotWrote, kickUserWrote, updateKBWState, updateKUWState } from "./utils/chatState.js";
 if (!process.env.clientId ||
     !process.env.clientSecret ||
     !process.env.kick_user ||
@@ -67,12 +66,6 @@ async function start(token) {
         }
         if (isSendingMessage)
             return;
-        console.log(`Kick User Wrote: ${kickUserWrote} | Kick Bot Wrote: ${kickBotWrote}`);
-        if (kickUserWrote) {
-            console.log(`Owner wrote before script. Waiting next cycle...`);
-            updateKUWState(false);
-            return;
-        }
         try {
             isSendingMessage = true;
             await nekiroClient.chat.postMessage({
