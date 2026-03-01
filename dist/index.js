@@ -53,7 +53,7 @@ async function start(token) {
         catch (error) {
             console.error(`[Error fetching LIVE status]`, error);
         }
-    }, 60 * 1000);
+    }, 5 * 60 * 1000);
     // ============================
     // Intervalo para enviar mensaje
     // ============================
