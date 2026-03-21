@@ -36,7 +36,6 @@ webSocket.on("message", async (data: WebSocket.RawData, isBinary: boolean): Prom
         const message = JSON.parse(data.toString());
         if (message.event === "App\\Events\\ChatMessageEvent") {
             const parseMessage: ISenderUser = JSON.parse(message.data);
-            console.log(parseMessage);
 
             const content = parseMessage.content.toLowerCase();
 
