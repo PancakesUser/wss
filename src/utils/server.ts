@@ -1,5 +1,5 @@
 import express, {type Express, type Request, type Response} from "express";
-import { nekiroClient, PKCEParams, start } from "../index.js";
+import { nekiroClient, PKCEParams, start } from "../index";
 import type { OAuthToken } from "@nekiro/kick-api";
 
 const app: Express = express();

@@ -1,3 +1,4 @@
+import "dotenv/config"
 import axios from "axios";
 
 export async function sendWebHookMSG(message: string): Promise<void> {

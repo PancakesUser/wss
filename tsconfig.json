@@ -7,10 +7,10 @@
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "node20",
-    "target": "es2020",
+    "module": "commonjs",
     "types": ["node"],
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
     // For nodejs:
     "lib": ["esnext"],
     // and npm install -D @types/node
@@ -37,7 +37,7 @@
     // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",

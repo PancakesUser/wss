@@ -1,10 +1,11 @@
 import "dotenv/config";
-import "./utils/server.js";
-import "./utils/fetchLC.js";
+import "./utils/server";
+import "./utils/fetchLC";
 import { client, type OAuthToken } from "@nekiro/kick-api";
-import type { IChannel } from "./types/ChannelT.js";
+import type { IChannel } from "./types/ChannelT";
 
 if (
+  !process.env.discord_webhook ||
   !process.env.clientId ||
   !process.env.clientSecret ||
   !process.env.kick_user ||
