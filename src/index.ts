@@ -1,8 +1,9 @@
 import "dotenv/config";
-import "./utils/server";
-import "./utils/fetchLC";
+import "./utils/server.ts";
+import "./utils/fetchLC.ts";
 import { client, type OAuthToken } from "@nekiro/kick-api";
-import type { IChannel } from "./types/ChannelT";
+import type { IChannel } from "./types/ChannelT.ts";
+import { getCooldown } from "./utils/fetchLC.ts";
 
 if (
   !process.env.discord_webhook ||
@@ -31,7 +32,7 @@ const channel = process.env.kick_channel as string;
 
 let isLive: boolean = false;
 let isSendingMessage: boolean = false;
-let cooldown: number = 5 * 1000;
+let cooldown: number = await getCooldown();
 
 let XPFarmed: number = 0;
 let messagesSent: number = 0;
@@ -178,7 +179,7 @@ async function messageLoop(channelInfo: IChannel) {
     messagesSent++;
 
     console.log(
-      `[${new Date().toLocaleTimeString("es-ES")}] +10 XP | Total: ${XPFarmed} XP | Msg: ${messagesSent}`
+      `[${new Date().toLocaleTimeString("es-ES")}] +10 XP | Total: ${XPFarmed} XP | Msg: ${messagesSent} | Cooldown: ${cooldown}`
     );
 
     // Break aleatorio

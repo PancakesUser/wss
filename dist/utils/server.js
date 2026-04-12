@@ -1,4 +1,4 @@
-import express, {} from "express";
+import express from "express";
 import { nekiroClient, PKCEParams, start } from "../index.js";
 const app = express();
 // App Configuration.

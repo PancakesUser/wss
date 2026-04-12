@@ -2,7 +2,9 @@ import "dotenv/config";
 import "./utils/server.js";
 import "./utils/fetchLC.js";
 import { client } from "@nekiro/kick-api";
-if (!process.env.clientId ||
+import { getCooldown } from "./utils/fetchLC.js";
+if (!process.env.discord_webhook ||
+    !process.env.clientId ||
     !process.env.clientSecret ||
     !process.env.kick_user ||
     !process.env.kick_channel) {
@@ -21,7 +23,7 @@ const PKCEParams = nekiroClient.generatePKCEParams();
 const channel = process.env.kick_channel;
 let isLive = false;
 let isSendingMessage = false;
-let cooldown = 5 * 1000;
+let cooldown = await getCooldown();
 let XPFarmed = 0;
 let messagesSent = 0;
 let liveInterval = null;
@@ -130,7 +132,7 @@ async function messageLoop(channelInfo) {
         consecutive403 = 0;
         XPFarmed += 10;
         messagesSent++;
-        console.log(`[${new Date().toLocaleTimeString("es-ES")}] +10 XP | Total: ${XPFarmed} XP | Msg: ${messagesSent}`);
+        console.log(`[${new Date().toLocaleTimeString("es-ES")}] +10 XP | Total: ${XPFarmed} XP | Msg: ${messagesSent} | Cooldown: ${cooldown}`);
         // Break aleatorio
         if (Math.random() < 0.002) {
             console.log("Long break (5 min)...");

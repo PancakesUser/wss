@@ -1,4 +1,4 @@
-import axios, {} from "axios";
+import axios from "axios";
 export async function fetchUserLVL() {
     const response = await axios({
         method: "GET",
