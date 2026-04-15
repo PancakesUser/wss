@@ -32,7 +32,7 @@ const channel = process.env.kick_channel as string;
 
 let isLive: boolean = false;
 let isSendingMessage: boolean = false;
-let cooldown: number = await getCooldown();
+let cooldown: number = 5*60*1000;
 
 let XPFarmed: number = 0;
 let messagesSent: number = 0;
@@ -142,9 +142,6 @@ async function handleError(error: any) {
 // ============================
 
 async function messageLoop(channelInfo: IChannel) {
-
-  cooldown = await getCooldown();
-
   if (!isLive) {
     console.log("Stream offline, waiting...");
     setTimeout(() => messageLoop(channelInfo), cooldown);

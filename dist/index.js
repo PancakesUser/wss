@@ -2,7 +2,6 @@ import "dotenv/config";
 import "./utils/server.js";
 import "./utils/fetchLC.js";
 import { client } from "@nekiro/kick-api";
-import { getCooldown } from "./utils/fetchLC.js";
 if (!process.env.discord_webhook ||
     !process.env.clientId ||
     !process.env.clientSecret ||
@@ -23,7 +22,7 @@ const PKCEParams = nekiroClient.generatePKCEParams();
 const channel = process.env.kick_channel;
 let isLive = false;
 let isSendingMessage = false;
-let cooldown = await getCooldown();
+let cooldown = 5 * 60 * 1000;
 let XPFarmed = 0;
 let messagesSent = 0;
 let liveInterval = null;
