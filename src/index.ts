@@ -32,7 +32,7 @@ const channel = process.env.kick_channel as string;
 
 let isLive: boolean = false;
 let isSendingMessage: boolean = false;
-let cooldown: number = 5*60*1000;
+let cooldown: number = 5*1000;
 
 let XPFarmed: number = 0;
 let messagesSent: number = 0;
