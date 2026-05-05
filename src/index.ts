@@ -32,7 +32,7 @@ const channel = process.env.kick_channel as string;
 
 let isLive: boolean = false;
 let isSendingMessage: boolean = false;
-let cooldown: number = 5*1000;
+let cooldown: number = 8*1000;
 
 let XPFarmed: number = 0;
 let messagesSent: number = 0;
@@ -59,10 +59,10 @@ let sessionStart = Date.now();
 // ============================
 
 const emotes = [
-  "[emote:4941811:streameruniversitariowow]",
+  // "[emote:4941811:streameruniversitariowow]",
   "[emote:37232:PeepoClap]",
-  "[emote:4937800:streameruniversitarioOk]",
-  "[emote:4937667:streameruniversitariohype]"
+//   "[emote:4937800:streameruniversitarioOk]",
+//   "[emote:4937667:streameruniversitariohype]"
 ];
 
 // ============================
@@ -158,6 +158,8 @@ async function messageLoop(channelInfo: IChannel) {
     setTimeout(() => messageLoop(channelInfo), cooldown);
     return;
   }
+
+  cooldown = await getCooldown()
 
   try {
     isSendingMessage = true;

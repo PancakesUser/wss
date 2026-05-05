@@ -2,6 +2,7 @@ import "dotenv/config";
 import "./utils/server.js";
 import "./utils/fetchLC.js";
 import { client } from "@nekiro/kick-api";
+import { getCooldown } from "./utils/fetchLC.js";
 if (!process.env.discord_webhook ||
     !process.env.clientId ||
     !process.env.clientSecret ||
@@ -22,7 +23,7 @@ const PKCEParams = nekiroClient.generatePKCEParams();
 const channel = process.env.kick_channel;
 let isLive = false;
 let isSendingMessage = false;
-let cooldown = 5 * 1000;
+let cooldown = 8 * 1000;
 let XPFarmed = 0;
 let messagesSent = 0;
 let liveInterval = null;
@@ -41,10 +42,10 @@ let sessionStart = Date.now();
 // Emotes
 // ============================
 const emotes = [
-    "[emote:4941811:streameruniversitariowow]",
+    // "[emote:4941811:streameruniversitariowow]",
     "[emote:37232:PeepoClap]",
-    "[emote:4937800:streameruniversitarioOk]",
-    "[emote:4937667:streameruniversitariohype]"
+    //   "[emote:4937800:streameruniversitarioOk]",
+    //   "[emote:4937667:streameruniversitariohype]"
 ];
 // ============================
 // Utils
@@ -119,6 +120,7 @@ async function messageLoop(channelInfo) {
         setTimeout(() => messageLoop(channelInfo), cooldown);
         return;
     }
+    cooldown = await getCooldown();
     try {
         isSendingMessage = true;
         const message = emotes[Math.floor(Math.random() * emotes.length)];
